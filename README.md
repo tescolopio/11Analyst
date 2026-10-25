@@ -106,9 +106,13 @@ by starting it; the offline report remains usable without the server.
 - [Troubleshooting](#troubleshooting)
 - [Tests](#tests)
 - [Roadmap and contributing](#roadmap-and-contributing)
+- [Validation protocol](docs/VALIDATION_PROTOCOL.md)
 
 The detailed product brief and completion gates are maintained in the
 [visual guide and milestone tracker](docs/Eleven_Analyst_Spin_Guide_Developer_Brief.docx).
+The [controlled-capture validation protocol](docs/VALIDATION_PROTOCOL.md) defines
+the checklist, capture procedure, and acceptance criteria for milestone-one
+coordinate mapping, spin conventions, and bounce reconstruction.
 
 ## Shot catalogue
 
