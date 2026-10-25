@@ -102,6 +102,7 @@ by starting it; the offline report remains usable without the server.
 - [Practice patterns](#ball-machine-practice-patterns)
 - [Interpretation and ranking](#interpretation-and-training)
 - [Architecture](#architecture)
+- [Quest file share sync](#quest-file-share-sync)
 - [Privacy and repository contents](#privacy-and-repository-contents)
 - [Troubleshooting](#troubleshooting)
 - [Tests](#tests)
@@ -821,7 +822,8 @@ Local .log files
 | [serve.py](serve.py) | Loopback HTTP server and guarded publish/recheck endpoints |
 | [player_settings.json](player_settings.json) | Player-ID-scoped, explicitly confirmed handedness preferences |
 | [tests/](tests/) | Synthetic analysis, persistence, browser-model and publishing tests |
-| [docs/](docs/) | Developer brief and milestone acceptance criteria |
+| [docs/](docs/) | Developer brief, milestone acceptance criteria and validation protocol |
+| [quest_sync.py](quest_sync.py) | Automatic log sync from Quest headset file share |
 
 For a different player's handedness, add an entry under `players` in
 [player_settings.json](player_settings.json), using their numeric ID as a string.
@@ -829,6 +831,43 @@ Use `handedness: "right"`, `"left"` or `"varies"` and
 `source: "user_confirmed"` only after confirming that preference. Missing entries
 remain unknown. Do not commit other people's preferences without permission.
 Handedness is not a log-axis calibration or a detected stroke classification.
+
+## Quest file share sync
+
+The Eleven Table Tennis app on Quest exposes a local HTTP file share when enabled
+in Settings. This provides direct access to logs, settings, and recordings without
+USB cables or sideloading tools.
+
+Enable file sharing in-game, note the displayed IP and port (e.g., `172.16.0.15:8090`),
+then sync logs:
+
+```powershell
+python .\quest_sync.py --host 172.16.0.15:8090 --logs .\11TTLogs
+```
+
+Options:
+
+| Flag | Effect |
+| --- | --- |
+| `--watch 30` | Poll every 30 seconds instead of one-shot sync |
+| `--rebuild` | Run `analyst.py` after downloading new logs |
+| `--settings` | Also download current ball machine settings |
+| `--dry-run` | Show what would be downloaded without downloading |
+
+Watch mode example for continuous capture sessions:
+
+```powershell
+python .\quest_sync.py --host 172.16.0.15:8090 --logs .\11TTLogs --watch 30 --rebuild --player-id 1909208
+```
+
+This polls every 30 seconds, downloads new/changed logs, and rebuilds the analysis
+automatically. Press Ctrl+C to stop. The headset must remain on the same network
+with file sharing enabled.
+
+The sync script uses size comparison to detect changes. It does not upload, delete,
+or modify files on the headset. Downloaded settings go to
+`output/quest_BallLauncherSettings.json` for inspection, separate from the game's
+active settings.
 
 ## Privacy and repository contents
 
