@@ -1,0 +1,27 @@
+__pycache__/
+*.py[cod]
+11TTLogs/
+output/
+
+# Local environments, credentials and gameplay data outside the default folders.
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+*.log
+*.sqlite
+*.sqlite3
+*.sqlite3-*
+*.db
+*.db-*
+*.pem
+*.key
+cloud_publications.*.json
+cloud_publications.*.lock
+
+# Editor/OS scratch files and Office lock files.
+~$*
+*.tmp
+.DS_Store
+Thumbs.db

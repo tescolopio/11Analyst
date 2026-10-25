@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; base-uri 'none'">
+  <title>11 Analyst | Player dashboard</title>
+  <style>@@STYLE@@</style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to dashboard</a>
+  <aside class="sidebar" aria-label="Dashboard navigation">
+    <a class="brand" href="#overview" aria-label="11 Analyst home"><span class="brand-mark">11<span></span></span><span>ANALYST<small>YOUR GAME. UNDERSTOOD.</small></span></a>
+    <p class="nav-label">YOUR WORKSPACE</p>
+    <nav>
+      <a class="nav-link active" href="#overview"><span aria-hidden="true">&#9638;</span>Overview</a>
+      <a class="nav-link" href="#training"><span aria-hidden="true">&#9678;</span>Training plan<span class="nav-count" id="nav-priorities"></span></a>
+      <a class="nav-link" href="#shot-catalogue"><span aria-hidden="true">&#9776;</span>Shot catalogue</a>
+      <a class="nav-link" href="#spin-guide"><span aria-hidden="true">&#8635;</span>Spin glossary</a>
+      <a class="nav-link" href="#serve-pilot"><span aria-hidden="true">&#9678;</span>First-return pilot</a>
+      <a class="nav-link" href="#machines"><span aria-hidden="true">&#9655;</span>Ball machines</a>
+      <a class="nav-link" href="#matches"><span aria-hidden="true">&#9776;</span>Match explorer</a>
+      <a class="nav-link" href="#quality"><span aria-hidden="true">&#9671;</span>Data &amp; evidence</a>
+    </nav>
+    <div class="sidebar-note"><span class="live-dot"></span>Private by design<p>Your logs stay here.<br>No tracking. Opt-in drill uploads.</p></div>
+    <div class="sidebar-player"><span class="avatar">DB</span><div><strong id="sidebar-name">Player</strong><small>Eleven Table Tennis</small></div></div>
+  </aside>
+  <main id="main" tabindex="-1">
+    <header class="topbar">
+      <div><span class="eyebrow">PLAYER DEVELOPMENT</span><p id="date-range">Your recorded sessions</p></div>
+      <div class="topbar-actions">
+        <label class="mode-control" for="mode">Match mode<select id="mode"><option value="all">All matches</option><option value="ranked">Ranked only</option><option value="unranked">Unranked only</option></select></label>
+        <button class="button secondary" data-action="export">Export summary <span aria-hidden="true">&#8599;</span></button>
+      </div>
+    </header>
+    <div id="app-error" class="notice error" role="alert" hidden></div>
+    <p id="scope-status" class="sr-only" role="status" aria-live="polite"></p>
+    <noscript><section class="panel">@@FALLBACK@@</section></noscript>
+    <section id="overview" class="section">
+      <div class="hero">
+        <div class="hero-copy"><div class="profile-tag"><span class="live-dot"></span><span id="profile-label">YOUR PLAYER PROFILE</span></div><h1>Make your next<br>session count.</h1><p>Know what costs you points.<br>Train with a reason, not a guess.</p></div>
+        <div id="next-focus" class="focus-card"></div>
+      </div>
+      <div id="metrics" class="metric-grid"></div>
+      <div class="chart-grid">
+        <article class="panel"><div class="panel-heading"><div><p class="eyebrow">FOLLOW THE EVIDENCE</p><h2>Where points are lost</h2></div><span class="chip">Observed outcomes</span></div><div id="loss-chart"></div><p class="caption">One category per lost point. These are outcomes, not proof of a technical cause.</p></article>
+        <article class="panel"><div class="panel-heading"><div><p class="eyebrow">THE BIGGER PICTURE</p><h2>Point-winning trend</h2></div><span class="chart-key"><i></i>Points won</span></div><div id="trend-chart"></div><p id="trend-context" class="caption"></p></article>
+      </div>
+      <div class="context-strip" id="context-strip"></div>
+    </section>
+    <section id="training" class="section">
+      <div class="section-heading"><div><p class="eyebrow">YOUR NEXT BEST MOVES</p><h2>Suggested training, with evidence.</h2><p>Prioritized by observed point cost. Built around your selected match mode.</p></div><span class="chip" id="priority-count"></span></div>
+      <div id="training-cards" class="training-grid"></div>
+      <details class="method-note"><summary>How are priorities selected?</summary><p>Each observed point has equal weight. There is no ranked-mode, recency, or Elo multiplier. Longer matches contribute more points. A pattern needs at least five classified losses across two matches to become a priority. Validated points from unfinished matches count toward loss analysis.</p><p>Loss counts are not guaranteed recoverable points. Opponent strength, missing measurements, and small samples remain part of the evidence. Practice targets are coaching suggestions, not measured requirements.</p></details>
+      <div id="watchlist"></div>
+      <div class="section-heading"><div><p class="eyebrow">WHOSE RETURNS DESERVE A CLOSER LOOK?</p><h2>Opponent-specific opportunities</h2><p>Repeated observed return losses, ranked by count. These are not identified serve types or return-error rates.</p></div><span class="chip" id="opportunity-count"></span></div>
+      <p class="caption">Each opponent/context group needs five losses across two matches. Player-specific keys stay withheld until serve/shot reproduction is validated; generic presets are not labelled as an opponent's serves.</p>
+      <div id="opportunity-cards" class="training-grid"></div>
+    </section>
+    <section id="shot-catalogue" class="section">
+      <div class="section-heading"><div><p class="eyebrow">NAME IT. UNDERSTAND IT. LEARN THE RESPONSE.</p><h2>Shot catalogue</h2><p>Categories based on incoming context, length, location, spin and pace. Definitions first; evidence-backed matching comes next.</p></div><button id="catalogue-export" class="button secondary">Export catalogue</button></div>
+      <div id="catalogue-selection" class="panel">
+        <p id="catalogue-selected-tag" class="eyebrow"></p><h3 id="catalogue-selected-name" tabindex="-1"></h3>
+        <p class="notice">This defines a shot to recognize and practice. It does not establish that you struggle with this specific category. Observed attempts, failures and match counts are <strong>not classified yet</strong>, not zero.</p>
+        <div class="catalogue-layout">
+          <div>
+            <fieldset class="catalogue-builder"><legend>Explore a shot name</legend>
+              <label for="catalogue-context">Incoming ball</label><select id="catalogue-context"></select>
+              <label for="catalogue-length">Length / depth</label><select id="catalogue-length"></select>
+              <label for="catalogue-placement">Receiving-side location</label><select id="catalogue-placement"></select>
+              <label for="catalogue-spin">Spin family</label><select id="catalogue-spin"></select>
+              <label for="catalogue-direction">Sidespin direction</label><select id="catalogue-direction"></select>
+              <label for="catalogue-pace">Pace</label><select id="catalogue-pace"></select>
+            </fieldset>
+            <p class="caption">Names describe the incoming ball, not the stroke you must use. Builder changes are exploratory; export a definition to keep it.</p>
+            <button id="catalogue-export-selected" class="button secondary">Export selected definition</button>
+            <div id="catalogue-placement"></div>
+          </div>
+          <div>
+            <h4>How to recognize it</h4><div id="catalogue-recognition"></div>
+            <h4>How to counter it, if this is the ball you face</h4><div id="catalogue-counter"></div>
+            <h4>What counts as a successful return?</h4><div id="catalogue-success"></div>
+            <div id="catalogue-spin-links" class="publish-actions"></div><p class="caption">Spin links show synthetic illustrations, not measured examples of your opponent's ball.</p>
+          </div>
+        </div>
+        <p id="catalogue-status" class="caption" role="status"></p>
+        <div class="notice"><strong>Category-specific Ball Machine Key withheld.</strong> The named category and a representative feed must be validated first. A working generic serve-return key does not prove it reproduces this shot.</div>
+      </div>
+      <div class="section-heading"><div><h3>Starter shot categories</h3><p>The featured long-sidespin/backhand serve comes from milestone one.</p></div><span id="catalogue-count" class="chip"></span></div>
+      <div class="catalogue-filters">
+        <label for="catalogue-search">Search categories<input id="catalogue-search" type="search" placeholder="Backhand, short, topspin..." autocomplete="off"></label>
+        <label for="catalogue-filter-context">Incoming context<select id="catalogue-filter-context"><option value="all">All categories</option><option value="serve">Serves</option><option value="rally">Rally balls</option></select></label>
+        <label for="catalogue-filter-spin">Spin family<select id="catalogue-filter-spin"><option value="all">All spin families</option></select></label>
+      </div>
+      <div id="catalogue-cards" class="training-grid"></div>
+      <div class="panel"><h3>Connecting definitions to your games</h3><p id="catalogue-available-evidence"></p><a class="button secondary" href="#serve-pilot">Inspect broad first-return evidence</a><details class="method-note"><summary>What is needed before named-shot loss rankings?</summary><div id="catalogue-gates"></div><div id="catalogue-limits"></div></details></div>
+    </section>
+    <section id="spin-guide" class="section">
+      <div class="section-heading"><div><p class="eyebrow">UNDERSTAND THE ROTATION</p><h2>Illustrative spin glossary</h2><p>Synthetic examples, not replays or classifications of your logs.</p></div><span class="chip warning">Illustrative</span></div>
+      <div class="panel spin-layout">
+        <div class="spin-stage">
+          <canvas id="spin-canvas" width="720" height="460" role="img" aria-label="Illustrative marked ball">The text explanation describes each spin without animation.</canvas>
+          <p id="spin-clock" class="graphic-title"></p><p id="spin-explanation"></p>
+          <div class="publish-actions"><button id="spin-play" class="button">Play</button><button id="spin-step" class="button secondary">Step</button><button id="spin-reset" class="button secondary">Reset preset</button></div>
+          <p id="spin-accessibility" class="graphic-note"></p><p id="spin-alias" class="notice" hidden>Fast rotation can visually alias. Reduce playback speed to inspect it; the physical spin setting is not silently clamped.</p>
+        </div>
+        <div class="spin-controls">
+          <label for="spin-preset">Spin preset</label><select id="spin-preset"></select>
+          <label for="spin-rate">Spin strength</label><input id="spin-rate" type="range" min="0" max="10" step="0.1" value="1"><output id="spin-rate-value" for="spin-rate"></output>
+          <label for="spin-balance">Mixed-spin balance</label><input id="spin-balance" type="range" min="0" max="100" value="50"><output id="spin-balance-value" for="spin-balance"></output>
+          <label for="spin-mode">Motion mode</label><select id="spin-mode"><option value="inspect">Inspect (centered)</option><option value="travel">Straight travel (loop)</option></select>
+          <label for="spin-speed">Travel speed</label><input id="spin-speed" type="range" min="0" max="5" step="0.1" value="2" aria-describedby="spin-speed-help"><output id="spin-speed-value" for="spin-speed"></output><p id="spin-speed-help" class="graphic-note"></p>
+          <label for="spin-playback">Displayed playback speed</label><select id="spin-playback"><option value="1">1x</option><option value="0.5">0.5x slow motion</option><option value="0.25">0.25x slow motion</option><option value="0.1">0.1x slow motion</option></select>
+          <label for="spin-camera">Camera</label><select id="spin-camera"><option value="receiver">Receiver</option><option value="side">Side</option><option value="overhead">Overhead</option></select><button id="spin-reset-view" class="button small secondary">Reset view</button>
+          <fieldset><legend>Visible overlays</legend><label><input id="spin-axis" type="checkbox" checked> Angular-velocity axis</label><label><input id="spin-rotation" type="checkbox" checked> Rotation arrow</label><label><input id="spin-travel" type="checkbox" checked> Travel arrow</label><label><input id="spin-labels" type="checkbox" checked> Receiver / opponent labels</label></fieldset>
+          <label><input id="spin-advanced" type="checkbox"> Show axial rotation (advanced)</label>
+        </div>
+      </div>
+      <details class="method-note"><summary>Confirmed conventions and input contract</summary><p>Right-handed frame: +X is receiver right, +Y is up, +Z points from opponent toward receiver. The receiver faces -Z. Topspin is +X; backspin is -X. Overhead-clockwise sidespin is -Y; counterclockwise is +Y. Camera and playing handedness do not alter these physical vectors. No left/right sidespin naming is imposed.</p><p>Rev/s converts to rad/s with 2 pi. Controls use conservative visualization ranges, not skill thresholds. Mixed spin holds total magnitude constant. Missing angular velocity is unknown, not zero. This prototype accepts synthetic inputs only; raw log axes and units have not been converted to this frame.</p><pre id="spin-contract"></pre></details>
+    </section>
+    <section id="serve-pilot" class="section">
+      <div class="section-heading"><div><p class="eyebrow">FIRST TRAINING PILOT</p><h2>Opponent serves: the first return</h2><p>A broad, provisional category. Not long-sidespin or backhand classification.</p></div></div>
+      <div id="pilot-evidence"></div>
+      <details class="panel"><summary>Run a repeatable serve-feed check in Eleven</summary>
+        <p>This requires your in-game observations. A successful key download is not a placement, spin or speed calibration.</p>
+        <ol><li>Back up your settings. Load an existing serve-return key and select just its representative serve feed (ANLY01 in the Analyst serve-return collection). Leave its settings unchanged during the test.</li><li>Choose and describe one broad receiving-side target region before testing. The proposal below is a repeatability check, not a log-derived personal threshold.</li><li>Test 20 feeds: the proposed gate is 20 legal serve feeds (both required bounces), at least 18 in the chosen target, and a comfortable pace. Count invalid feeds separately from your return errors.</li><li>Record legal returns only out of valid feeds. Report spin as unknown unless you can identify it. No particular spin family or measured speed is required by this broad pilot.</li></ol>
+        <form id="pilot-form" class="pilot-form">
+          <label for="pilot-key">Tested Ball Machine Key</label><input id="pilot-key" required autocomplete="off">
+          <label for="pilot-feed">Single feed tested</label><input id="pilot-feed" required maxlength="100" value="ANLY01">
+          <label for="pilot-hand">Playing hand (self-reported)</label><select id="pilot-hand"><option value="unknown">Not specified</option><option value="right">Right-handed</option><option value="left">Left-handed</option><option value="varies">Varies</option></select>
+          <label for="pilot-target">Target region chosen before testing</label><input id="pilot-target" required maxlength="500" placeholder="Describe a broad region or a target marked in-game">
+          <label for="pilot-legal">Legal serve feeds out of 20</label><input id="pilot-legal" type="number" min="0" max="20" required>
+          <label for="pilot-target-hits">Valid feeds landing in that target</label><input id="pilot-target-hits" type="number" min="0" max="20" required>
+          <label for="pilot-returns">Your legal returns out of valid feeds</label><input id="pilot-returns" type="number" min="0" max="20" required>
+          <label for="pilot-pace">Pace</label><select id="pilot-pace"><option value="not_checked">Not checked</option><option value="comfortable">Comfortable</option><option value="too_fast">Too fast</option><option value="too_slow">Too slow</option></select>
+          <label for="pilot-spin">Observed spin (not independently verified)</label><select id="pilot-spin"><option value="unknown">Unknown</option><option value="top">Topspin</option><option value="back">Backspin</option><option value="clockwise">Clockwise viewed from above</option><option value="counterclockwise">Counterclockwise viewed from above</option><option value="mixed">Mixed</option></select>
+          <label class="publish-check"><input id="pilot-agreed" type="checkbox" required>I agreed to this protocol before the run and tested 20 feeds without changing settings.</label>
+          <button id="pilot-save" class="button" type="submit">Save my observations locally</button>
+        </form>
+        <p id="pilot-feedback" role="status"></p><p class="graphic-note">Reports stay in this browser, scoped to your player ID. File and localhost browser storage differ. Export a backup. These observations do not unlock opponent-specific keys or complete the original long-sidespin/backhand milestone.</p>
+        <button id="pilot-export" class="button secondary" disabled>Export observations</button><ul id="pilot-saved"></ul>
+      </details>
+    </section>
+    <section id="machines" class="section">
+      <div class="section-heading"><div><p class="eyebrow">FROM INSIGHT TO PRACTICE</p><h2>Ball-machine practice patterns</h2><p>Three collections. One progression: receive, rally, then put it together.</p></div><span class="chip warning">Calibration required</span></div>
+      <div id="machine-cards" class="machine-grid"></div>
+      <div class="notice"><strong>Generate a key, then test the training in Eleven.</strong> No JSON file is needed for the key-generation workflow. Back up your game settings and verify legal bounces, feed order, placement, and timing. Nothing is uploaded automatically.</div>
+      <article id="publishing-workbench" class="panel publishing-workbench" aria-labelledby="publishing-title">
+        <div class="panel-heading"><div><p class="eyebrow">SELECT TRAINING &rarr; GENERATE KEY &rarr; PLAY</p><h3 id="publishing-title">Generate a Ball Machine Key</h3></div><span id="publishing-mode" class="chip warning">Local server required</span></div>
+        <p>Select your training, generate its key, then copy that key into Eleven's Download field. Settings are handled behind the scenes; you do not need to download or import JSON. A key is shown only after an exact cloud read-back match, not an in-game test.</p>
+        <div id="publishing-error" class="notice error" role="alert" hidden></div>
+        <p id="publishing-message" role="status" aria-live="polite"></p>
+        <section class="publish-step cloud-panel" aria-labelledby="cloud-title">
+          <h4 id="cloud-title">Your training key</h4>
+          <p id="cloud-availability">Offline report: start <code>python .\serve.py</code> from the project folder, then open the printed local address. The offline report does not make upload requests.</p>
+          <label for="publish-collection">Eligible return training plan (selected match mode)</label><select id="publish-collection"></select>
+          <p id="cloud-selection"></p>
+          <p id="publish-summary"></p>
+          <ol id="publish-stages"></ol>
+          <details class="feed-preview"><summary>Preview every feed &amp; its settings</summary><div id="publish-graphic"></div></details>
+          <p>11 Hero is a third-party community service, not an official Eleven API. Its shared keys begin with <strong>54334</strong>, not your player ID. Treat uploaded settings as public. This interface cannot delete them from the cloud.</p>
+          <p>Only feed parameters and generated collection/feed labels are sent, with a random publication tag for matching. Logs, profile data, source paths, account credentials, and original free-text descriptions are not sent.</p>
+          <label class="publish-check"><input type="checkbox" id="cloud-consent">I approve sending this selected general return-practice plan to 11 Hero for public sharing and understand it is not an opponent reproduction and still needs in-game testing.</label>
+          <div class="publish-actions"><button type="button" id="cloud-upload" class="button" disabled>Generate Ball Machine Key</button><button type="button" id="cloud-recheck" class="button secondary" disabled hidden>Recheck without re-uploading</button></div>
+          <p id="cloud-status" role="status" aria-live="polite"></p>
+          <div id="cloud-key-box" hidden><label for="cloud-key">Your verified Ball Machine Key</label><input id="cloud-key" type="text" readonly><button type="button" id="cloud-copy" class="button secondary">Copy key</button><p class="caption">Paste this key into Settings &rarr; Advanced &rarr; Backup and reset &rarr; Ball machine &rarr; Download.</p></div>
+          <p class="caption">A slow, interrupted, or ambiguous upload is never retried automatically. Recheck performs reads only. The server remembers attempts across restarts and reuses an already verified key for the same candidate revision.</p>
+          <details><summary>Test the returned key in Eleven</summary><ol><li>Back up your existing ball-machine settings.</li><li>Turn the ball machine off. Open Settings &rarr; Advanced &rarr; Backup and reset &rarr; Ball machine.</li><li>Enter the verified key and press Download. This can replace your current collection.</li><li>Open Training &amp; Practice &rarr; Ball machine, select the intended feeds, and test conservatively. Check legal bounces, placement, feed order, speed, and timing.</li></ol></details>
+        </section>
+        <details id="publishing-advanced" class="method-note">
+          <summary>Advanced: JSON files, manual uploads &amp; key backups</summary>
+          <p>These tools are optional. You do not need them to generate or use a Ball Machine Key.</p>
+        <div class="publishing-grid">
+          <section class="publish-step" aria-labelledby="prepare-title">
+            <h4 id="prepare-title">Optional settings-file download</h4>
+            <p class="caption">Candidate revision: <code id="publish-revision"></code></p>
+            <button type="button" id="publish-download" class="button secondary">Download candidate JSON</button>
+            <p class="caption">Downloads <code>BallLauncherSettings.json</code> to your browser's download location. It does not install anything. Each collection is a separate settings file, not an automatic merge with existing drills.</p>
+          </section>
+          <section class="publish-step" aria-labelledby="handoff-title">
+            <h4 id="handoff-title">2. Load, test, then upload in-game</h4>
+            <details><summary>Meta/Oculus PC file-loading steps</summary>
+              <ol><li>Close Eleven and back up its entire existing settings folder.</li><li>Locate the game's existing <code>BallLauncherSettings.json</code>. The community-documented PC layout is <code>&lt;Oculus library&gt;\Software\for-fun-labs-eleven-table-tennis-vr\settings</code>.</li><li>Only after confirming the actual file and backup, replace that file with the downloaded collection. Browser downloads may append a suffix; the installed filename must match the original.</li><li>If that file does not exist, stop and confirm your version's settings layout. Do not create guessed paths or overwrite other files.</li><li>Start Eleven and inspect Training &amp; Practice &rarr; Ball machine. Calibrate legal bounces, order, placement, and timing before publishing. Re-export any changes from the game if you need a copy of the calibrated settings.</li></ol>
+              <p class="caption">This is a documented historical loading method, not a tested guarantee for your current build. <a href="https://github.com/jerryfromearth/ETT-Service-Return-Drills#manual-way" target="_blank" rel="noopener noreferrer">Community file-loading instructions (external)</a>.</p>
+            </details>
+            <p>With the machine off, open <strong>Settings &rarr; Advanced &rarr; Backup and reset &rarr; Ball machine</strong>.</p>
+            <p>Find the control to upload/save the current settings to cloud storage, if your build exposes one, and copy the returned key.</p>
+            <div class="notice"><strong>Only see Download?</strong> Stop here. Entering a new number does not create a key. We still need a screenshot of this screen and your game version, or verified developer instructions for publishing. Do not provide credentials or authentication logs.</div>
+          </section>
+          <section class="publish-step" aria-labelledby="record-title">
+            <h4 id="record-title">3. Record the actual returned key</h4>
+            <p id="publish-key-status"></p>
+            <div id="publish-recorded" hidden><label for="publish-recorded-key">Recorded key (select to copy)</label><input id="publish-recorded-key" type="text" readonly><p id="publish-recorded-date" class="caption"></p></div>
+            <form id="publish-key-form">
+              <fieldset id="publish-fields">
+                <legend class="sr-only">Confirm your in-game upload</legend>
+                <label class="publish-check"><input id="publish-backed-up" type="checkbox" required>I backed up my existing game settings.</label>
+                <label class="publish-check"><input id="publish-calibrated" type="checkbox" required>I loaded and calibrated this collection in Eleven.</label>
+                <label class="publish-check"><input id="publish-uploaded" type="checkbox" required>I uploaded this collection in-game and copied its returned key.</label>
+                <label for="publish-provider">Source of manually recorded key</label><select id="publish-provider"><option value="manual">My Eleven account</option><option value="11hero">11 Hero shared account (54334)</option></select>
+                <label for="publish-key">Ball Machine Key</label>
+                <input id="publish-key" type="text" required maxlength="100" autocomplete="off" spellcheck="false" aria-describedby="publish-key-help">
+                <p id="publish-key-help" class="caption"></p>
+                <button type="submit" class="button">Save key locally</button>
+              </fieldset>
+            </form>
+            <p class="caption">These are your confirmations, not independent verification. The revision identifies the original candidate; calibrated/cloud settings may differ. Changing a candidate flags its old key record for rechecking.</p>
+          </section>
+        </div>
+        <div class="publishing-backup">
+          <h4>Keep your manually recorded keys</h4>
+          <p>Manual records stay in this browser for this player. Cloud upload attempts and verified keys are saved separately in the local server's publication journal. Browser storage differs between file and server addresses; export/import manual records when moving between them.</p>
+          <div class="publish-actions"><button type="button" id="publish-export" class="button secondary">Export key records</button><label class="publish-import" for="publish-import">Import record backup (replaces local records)<input id="publish-import" type="file" accept=".json,application/json"></label><button type="button" id="publish-reset" class="button ghost">Clear local key records</button></div>
+          <p id="publish-record-count" class="caption"></p>
+          <button type="button" id="cloud-export" class="button secondary" disabled>Export cloud key receipts</button>
+          <details><summary>Saved cloud receipts, including earlier collections</summary><p>These receipts describe previously submitted settings, not necessarily the selected training plan. Rechecking only reads the cloud; it never uploads again.</p><ul id="cloud-history"></ul></details>
+        </div>
+        </details>
+        <details class="method-note"><summary>Provider API &amp; verification limits</summary>
+          <p><a href="https://solidslime.net/cloud/getSettings.php?environment=production&amp;type=ballMachine&amp;userId=4008&amp;fileName=48" target="_blank" rel="noopener noreferrer">Read public settings for key 4008.48 (external)</a>. This community GET endpoint separates the player ID (<code>4008</code>) from the settings ID (<code>48</code>). It is not an official upload API. <a href="https://solidslime.net/cloud/" target="_blank" rel="noopener noreferrer">Cloud settings viewer (external)</a>.</p>
+          <p>The <a href="https://11hero.com/ballmachineditor" target="_blank" rel="noopener noreferrer">11 Hero editor (external)</a> uses GET <code>/api/getBallMachineList</code>, POST <code>/api/sendBallMachineToCloud</code> with a <code>json</code> settings object, and GET <code>/api/getBallMachine</code>. This is an observed, undocumented third-party interface; availability, permissions, and compatibility may change. We do not use game login tokens or bypass an authentication challenge.</p>
+          <p>The Analyst compares new IDs against the pre-upload list and retrieves their settings. Exactly one complete match, including the publication tag, is required. It does not simply assume the highest ID belongs to you. Server normalization or listing delays may leave a real upload unverified; Recheck never posts it again.</p>
+          <p>Read-back verification is an observation at the recorded time, not a guarantee the remote key will never change. The offline report stays network-disabled. The local server contacts 11 Hero only after explicit upload or recheck actions.</p>
+        </details>
+      </article>
+      <details class="panel compact"><summary>Individual recipes, feed variations &amp; research</summary><div id="recipe-library"></div></details>
+    </section>
+    <section id="matches" class="section">
+      <div class="section-heading"><div><p class="eyebrow">TRACE IT BACK TO A POINT</p><h2>Match explorer</h2><p>Inspect the result, loss pattern, and recorded contacts behind each recommendation.</p></div></div>
+      <div class="panel explorer">
+        <div class="explorer-tools"><label class="search-control"><span class="sr-only">Search opponents or match IDs</span><input id="match-search" type="search" placeholder="Search opponent or match ID..."></label><label class="result-control" for="result-filter">Result<select id="result-filter"><option value="all">All results</option><option value="win">Wins</option><option value="loss">Losses</option><option value="incomplete">Incomplete</option><option value="inconsistent">Inconsistent</option></select></label></div>
+        <p class="caption explorer-caption">Search and result filters affect this table only. Game scores are you-opponent.</p>
+        <div id="match-table" class="table-scroll"></div>
+        <div class="pagination"><span id="match-count" role="status"></span><div><button id="prev-page" class="button small secondary">Previous</button><button id="next-page" class="button small secondary">Next</button></div></div>
+      </div>
+    </section>
+    <section id="quality" class="section">
+      <div class="section-heading"><div><p class="eyebrow">HONEST ABOUT THE LIMITS</p><h2>Ball and contact measurements</h2><p>Useful signals. Clear gaps. No invented paddle angles or physical units.</p></div></div>
+      <div id="telemetry-summary" class="metric-grid three"></div>
+      <div class="quality-grid">
+        <article class="panel"><h3>What the evidence can tell you</h3><ul class="check-list"><li>Scores confirm individual point losses.</li><li>Logged reasons identify broad loss outcomes.</li><li>Paired ball states describe observed incoming and outgoing contacts.</li><li>Paddle speed, face angle, and continuous swing paths remain unavailable.</li></ul><p class="caption">All ball vectors and rates remain in raw log units. Paired incoming/outgoing states are not full motion capture.</p></article>
+        <article class="panel" id="source-summary"></article>
+      </div>
+      <details class="panel compact"><summary>Input files &amp; diagnostics <span class="chip">All input files, not mode-filtered</span></summary><div id="source-table" class="table-scroll"></div></details>
+      <details class="panel compact"><summary>Interpretation limits &amp; rating observations</summary><div id="limits"></div></details>
+    </section>
+    <footer><span class="footer-brand">11 ANALYST</span><span id="generated-at"></span><span>Self-contained. Local. Evidence-led.</span></footer>
+  </main>
+  <dialog id="detail-dialog" aria-labelledby="dialog-title">
+    <div class="dialog-top"><button id="dialog-back" class="button small secondary" hidden>Back</button><span id="dialog-kicker" class="eyebrow"></span><button id="dialog-close" class="icon-button" aria-label="Close details">&#10005;</button></div>
+    <h2 id="dialog-title" tabindex="-1"></h2><div id="dialog-body"></div>
+  </dialog>
+  <script id="dashboard-data" type="application/json">@@DATA@@</script>
+  <script>@@GRAPHICS_SCRIPT@@</script>
+  <script>@@SPIN_SCRIPT@@</script>
+  <script>@@PILOT_SCRIPT@@</script>
+  <script>@@CATALOGUE_SCRIPT@@</script>
+  <script>@@PUBLISHING_SCRIPT@@</script>
+  <script>@@SCRIPT@@</script>
+</body>
+</html>
