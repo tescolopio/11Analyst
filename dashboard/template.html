@@ -17,6 +17,7 @@
       <a class="nav-link active" href="#overview"><span aria-hidden="true">&#9638;</span>Overview</a>
       <a class="nav-link" href="#training"><span aria-hidden="true">&#9678;</span>Training plan<span class="nav-count" id="nav-priorities"></span></a>
       <a class="nav-link" href="#shot-catalogue"><span aria-hidden="true">&#9776;</span>Shot catalogue</a>
+      <a class="nav-link" href="#hero-evidence"><span aria-hidden="true">&#9638;</span>Hero imports</a>
       <a class="nav-link" href="#spin-guide"><span aria-hidden="true">&#8635;</span>Spin glossary</a>
       <a class="nav-link" href="#serve-pilot"><span aria-hidden="true">&#9678;</span>First-return pilot</a>
       <a class="nav-link" href="#machines"><span aria-hidden="true">&#9655;</span>Ball machines</a>
@@ -57,6 +58,50 @@
       <div class="section-heading"><div><p class="eyebrow">WHOSE RETURNS DESERVE A CLOSER LOOK?</p><h2>Opponent-specific opportunities</h2><p>Repeated observed return losses, ranked by count. These are not identified serve types or return-error rates.</p></div><span class="chip" id="opportunity-count"></span></div>
       <p class="caption">Each opponent/context group needs five losses across two matches. Player-specific keys stay withheld until serve/shot reproduction is validated; generic presets are not labelled as an opponent's serves.</p>
       <div id="opportunity-cards" class="training-grid"></div>
+    </section>
+    <section id="hero-evidence" class="section">
+      <div class="section-heading"><div><p class="eyebrow">SEPARATE PROVIDER EVIDENCE</p><h2>11 Hero imports</h2><p>Manually imported exports. Provider labels are retained, not adopted as validated Analyst classifications.</p></div><button id="hero-export" class="button secondary" disabled>Export Hero evidence</button></div>
+      <p id="hero-summary"></p>
+      <div id="hero-empty" class="panel"><h3>No Hero imports for this player</h3><p>Export a match's Shots JSON from 11 Hero, then import it locally with a metadata manifest:</p><pre>python .\hero_import.py --manifest .\hero-manifest.json --player-id YOUR_PLAYER_ID</pre><p>The importer performs no network calls. See the README for the manifest format. Restart this server and reload after importing.</p></div>
+      <div id="hero-workspace" class="panel" hidden>
+        <label for="hero-revision">Source match / retained revision</label><select id="hero-revision"></select>
+        <p class="notice">Not included in local loss rankings, receiving-attempt denominators or machine-key eligibility. Point winners and match completeness remain unknown. Do not add revision counts together.</p>
+        <p id="hero-counts"></p><div id="hero-source"></div>
+        <details class="method-note"><summary>Source, hash, declared metadata and uncertainty</summary><pre id="hero-provenance"></pre></details>
+        <details class="method-note"><summary>Import diagnostics and quarantined rows</summary><div id="hero-diagnostics" class="table-scroll"></div><p>Original file bytes, including rejected rows, are retained in the separate local SQLite archive. Export row numbers are JSON array positions, not log line numbers.</p></details>
+        <div class="catalogue-filters">
+          <label for="hero-search">Find point, row or provider label<input id="hero-search" type="search" autocomplete="off"></label>
+          <label for="hero-contact">Contact<select id="hero-contact"><option value="all">All contacts</option><option value="Hit">Hits only</option><option value="Toss">Tosses only</option><option value="other">Other contacts</option></select></label>
+          <label for="hero-actor">Player<select id="hero-actor"><option value="all">Both players</option><option value="target">Analysis target</option><option value="opponent">Other player(s)</option></select></label>
+        </div>
+        <div id="hero-rows" class="table-scroll"></div>
+        <div class="pagination"><span id="hero-page" role="status"></span><button id="hero-prev" class="button small secondary">Previous</button><button id="hero-next" class="button small secondary">Next</button></div>
+        <section id="hero-row-detail" hidden><h3 id="hero-row-title" tabindex="-1"></h3><p>Provider numeric fields, labels and flags are preserved below. Null Analyst labels/outcomes are unknown, not zero or false. No synthetic local events or launcher settings are generated.</p><pre id="hero-row-json"></pre></section>
+        <section id="hero-review">
+          <h3>Milestone 1: assisted serve review</h3>
+          <p id="hero-review-player"></p>
+          <p id="hero-review-summary" role="status"></p>
+          <p class="notice"><strong>Real placement, length and spin validation: pending.</strong> No replay or video is available yet. Coordinate axes/receiver transform, event timing and bounce reconstruction must be validated before placement is classified. Hero direction/distance labels and camera orientation are not a substitute. Provider spin units/axes also remain unvalidated.</p>
+          <p>Long means the hypothetical next table bounce <strong>without a return</strong> would be beyond the receiver's end line. A deep first bounce is insufficient. Side describes location from the receiver's perspective, not the stroke used. See the <a href="#shot-catalogue">shot catalogue</a> for conditional recognition and counter-play.</p>
+          <label for="hero-review-shot">Opponent serve candidate (source-file order)</label><select id="hero-review-shot"></select>
+          <details class="method-note"><summary>Selected serve, following recorded Hit and validation gaps</summary><pre id="hero-review-detail"></pre></details>
+          <form id="hero-review-form" hidden>
+            <div class="catalogue-filters">
+              <label for="hero-review-outcome">Immediate return observation<select id="hero-review-outcome"><option value="unknown">Unknown / pending</option><option value="missed_contact">Missed contact (reviewed)</option><option value="failed_landing">Contacted return failed to land (reviewed)</option><option value="legal_return">Legal first return (reviewed)</option></select></label>
+              <label for="hero-review-reference-kind">Evidence type<select id="hero-review-reference-kind"><option value="pending">No reference yet / pending</option><option value="replay">Replay / video</option><option value="in_game">In-game observation of this shot</option><option value="other">Other explicit reference</option></select></label>
+            </div>
+            <label for="hero-review-reference">Evidence reference (required for a known outcome; include shot/time)<input id="hero-review-reference" type="text" maxlength="4000" autocomplete="off"></label>
+            <label for="hero-review-notes">Review notes<textarea id="hero-review-notes" rows="3" maxlength="4000"></textarea></label>
+            <p class="caption">User observations only; not a measured diagnosis. Do not infer an outcome from an ace flag or an absent contact. Geometry cannot be overridden here. Notes are appended per player, revision and shot in this browser, not written into the original export or local statistics. Offline-file and served-page storage may differ. Export a backup; review re-import is not implemented.</p>
+            <button id="hero-review-save" class="button" type="submit" disabled>Save review note</button>
+          </form>
+          <p id="hero-review-feedback" role="status"></p>
+          <ul id="hero-review-history"></ul>
+          <button id="hero-review-export" class="button secondary" disabled>Export this revision's reviews</button>
+          <details class="method-note"><summary>Synthetic geometry examples: logic checks, not real-world validation</summary><p>Fabricated bounce coordinates with explicit synthetic validation gates. These do not calibrate Hero or generate a feed. Real category attempts/errors remain unknown and player-specific keys remain withheld.</p><ul id="hero-review-synthetic"></ul></details>
+        </section>
+      </div>
+      <details class="method-note"><summary>Evidence boundaries and what comes next</summary><div id="hero-limits"></div><p>Clubhouse commentary is unverified generated narrative, not shot evidence. Match discovery, automated collection, cross-source reconciliation and unit/label calibration are separate future steps.</p></details>
     </section>
     <section id="shot-catalogue" class="section">
       <div class="section-heading"><div><p class="eyebrow">NAME IT. UNDERSTAND IT. LEARN THE RESPONSE.</p><h2>Shot catalogue</h2><p>Categories based on incoming context, length, location, spin and pace. Definitions first; evidence-backed matching comes next.</p></div><button id="catalogue-export" class="button secondary">Export catalogue</button></div>
@@ -256,6 +301,8 @@
   <script>@@SPIN_SCRIPT@@</script>
   <script>@@PILOT_SCRIPT@@</script>
   <script>@@CATALOGUE_SCRIPT@@</script>
+  <script>@@HERO_REVIEW_SCRIPT@@</script>
+  <script>@@HERO_SCRIPT@@</script>
   <script>@@PUBLISHING_SCRIPT@@</script>
   <script>@@SCRIPT@@</script>
 </body>

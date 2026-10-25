@@ -13,6 +13,7 @@ from urllib.parse import urlsplit
 
 import cloud_publish
 import dashboard
+import hero_import
 
 LOG = logging.getLogger("11analyst.server")
 
@@ -20,6 +21,7 @@ LOG = logging.getLogger("11analyst.server")
 def create_server(profile: dict[str, Any], output: Path, port: int = 18765,
                   client: cloud_publish.HeroClient | None = None) -> ThreadingHTTPServer:
     publisher = cloud_publish.Publisher(profile, output, client)
+    hero_evidence = hero_import.load_evidence(output, profile["player"]["id"])
     token = secrets.token_urlsafe(32)
 
     class Handler(BaseHTTPRequestHandler):
@@ -64,7 +66,7 @@ def create_server(profile: dict[str, Any], output: Path, port: int = 18765,
             try:
                 if self.path in ("/", "/report.html"):
                     service = {"token": token, "publications": publisher.summaries()}
-                    self.respond(200, dashboard.render(profile, service), html=True)
+                    self.respond(200, dashboard.render(profile, service, hero_evidence), html=True)
                 elif self.path == "/api/publications":
                     self.respond(200, {"publications": publisher.summaries()})
                 elif self.path == "/health":

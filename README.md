@@ -26,6 +26,7 @@ Eleven Table Tennis or 11 Hero integration.
 | Training graphics | Shows perspective table-tennis tables, targets, serve-bounce order and feed settings |
 | Ball Machine Keys | Optionally publishes eligible generic return plans and verifies exact cloud read-back |
 | Practice observations | Saves explicit player-reported feed checks locally, with export |
+| Manual 11 Hero imports | Preserves provider exports and revisions in a separate, inspectable evidence view |
 
 **Privacy default:** analysis needs no network or third-party Python packages.
 Raw logs and generated reports are not distributed in this repository. Optional
@@ -37,7 +38,8 @@ cloud publishing sends sanitized machine settings only, after explicit consent.
 
 - Python **3.11+**, available as `python`.
 - A modern browser with JavaScript enabled.
-- Your own Eleven Table Tennis `.log` files containing local match snapshots.
+- Your own Eleven Table Tennis `.log` files containing local match snapshots,
+  or manually exported Hero shot JSON for the separate import workflow below.
 - Git for cloning; Node.js **18+** only if you want to run the JavaScript tests.
 - An internet connection only for cloning and optional cloud-key publishing.
 
@@ -95,6 +97,7 @@ by starting it; the offline report remains usable without the server.
 - [What is measured](#what-is-measured)
 - [Using the dashboard](#using-the-dashboard)
 - [Optional cloud publishing](#publishing-through-11-hero-optional-local-server)
+- [Manual 11 Hero evidence imports](#manual-11-hero-evidence-imports)
 - [Ball/contact telemetry](#ball-and-paddle-contact-telemetry)
 - [Practice patterns](#ball-machine-practice-patterns)
 - [Interpretation and ranking](#interpretation-and-training)
@@ -514,6 +517,61 @@ Clearing local records requires confirmation and never deletes anything in-game
 or in the cloud. Keep calibrated game settings backed up separately: key-record
 backups contain neither settings payloads nor authentication credentials.
 
+## Manual 11 Hero evidence imports
+
+You can now import a match's **Export all shots (JSON)** file from 11 Hero,
+without scraping the website or guessing a match API. This is distinct from
+the existing Hero ball-machine publishing client.
+
+Create a local manifest based on
+[the example](docs/hero-import.example.json), replacing the file path, provider
+match UUID and player ID, then run:
+
+```powershell
+python .\hero_import.py --manifest .\hero-manifest.local.json --player-id 1909208 --output .\output
+```
+
+The **Hero imports** dashboard section shows both players, Hits versus Tosses,
+provider point groups, raw accepted-row fields, provider labels/flags, declared
+metadata and diagnostics. Filter rows or inspect the original provider fields.
+Unknown outcomes stay unknown. It also works with no local-log input, using an
+empty local profile rather than deriving local scores from Hero annotations.
+
+The **Milestone 1: assisted serve review** panel links opponent serve candidates
+to exact revisions and following recorded Hits. Save pending notes or
+reference-backed user observations, then export a browser-local review backup.
+Real long/backhand placement remains **unknown** pending validated receiver-frame
+coordinates, event timing and bounce reconstruction; a deep first bounce is not
+enough to call a serve long. Synthetic tests cover both handednesses, receiver
+ends, mixed spin and boundary cases, but do not establish real-world accuracy.
+Reviews do not change loss statistics or unlock keys. See the
+[review workflow and limitations](docs/HERO_IMPORT.md#milestone-one-assisted-review).
+
+- Original file bytes and normalized evidence are stored transactionally in a
+  separate `output\hero_imports.sqlite3` archive.
+- Re-importing unchanged content and metadata is idempotent. Changes retain
+  new revisions instead of overwriting prior evidence.
+- A normalized `output\hero_evidence.<player-id>.json` snapshot and the report
+  are refreshed. Existing local profiles, snapshots, loss counts and machine
+  settings are not altered by import.
+- Ordinary local-log rebuilds preserve the archive and include its evidence
+  separately in the report. Restart `serve.py` and reload after imports/rebuilds.
+- Hero success flags do **not** become local point-loss reasons, receiving
+  denominators, catalogue diagnoses or key-generation eligibility.
+
+The supplied reference sample was checked locally: **181 rows / 41 fields /
+138 Hits / 43 Tosses / 43 provider point groups**, preserving both players.
+Those counts are not hardcoded expectations. The handoff's anomalous match
+score summary remains declared, unresolved metadata, not a complete result.
+No real exports or private manifests are committed as fixtures.
+
+Read the [import contract, storage and troubleshooting guide](docs/HERO_IMPORT.md)
+and [dated research handoff](docs/HERO_IMPORT_DEVELOPER_HANDOFF.md).
+The handoff's 55-match discovery is a dated coverage observation, not complete
+account history. Clubhouse commentary remains unverified narrative rather than
+shot evidence. Automated collection, cross-source matching, unit/label
+calibration and representative-feed validation remain future work.
+
 ## Ball and paddle-contact telemetry
 
 Each reconstructed point includes its score-snapshot source boundaries and a
@@ -750,6 +808,7 @@ Local .log files
 | [telemetry.py](telemetry.py) | Bounded attempts, hit ownership, paired ball states and measurement quality |
 | [loss_analysis.py](loss_analysis.py) | Loss categories, eligibility, mode-specific priorities and opponent opportunities |
 | [serve_reception.py](serve_reception.py) | Conservative first-return denominator, outcomes and exclusions |
+| [hero_import.py](hero_import.py) | Offline Hero export/manifest validation, raw archive and independent evidence revisions |
 | [shot_catalogue.py](shot_catalogue.py) | Shared category vocabulary, naming rules and conditional coaching |
 | [practice.py](practice.py) | Reference templates, staged return plans and machine-settings validation |
 | [dashboard.py](dashboard.py) | Embedded data and assets, offline report generation |
@@ -814,7 +873,7 @@ analysis jobs against the same output directory.
 
 ```powershell
 python -m unittest discover -s tests -v
-node --test .\tests\test_publishing.js .\tests\test_graphics.js .\tests\test_spin.js .\tests\test_pilot.js .\tests\test_catalogue.js
+node --test .\tests\test_publishing.js .\tests\test_graphics.js .\tests\test_spin.js .\tests\test_pilot.js .\tests\test_catalogue.js .\tests\test_hero.js .\tests\test_hero_review.js
 node --check .\dashboard\dashboard.js
 ```
 

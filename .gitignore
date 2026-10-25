@@ -19,6 +19,12 @@ venv/
 *.key
 cloud_publications.*.json
 cloud_publications.*.lock
+all_hits_data*.json
+hero-manifest*.json
+hero-imports/
+hero_imports/
+hero_evidence.*.json
+hero-reviews-*.json
 
 # Editor/OS scratch files and Office lock files.
 ~$*

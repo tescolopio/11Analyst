@@ -524,6 +524,7 @@
     catalogue = ElevenCatalogue.initialize({
       catalogue: data.shot_catalogue, player: data.player, scope: view(), h, downloadJson, onError: showError
     });
+    ElevenHero.initialize({evidence: data.hero_evidence, player: data.player, h, downloadJson, onError: showError});
   } catch (error) {
     showError(error);
   }

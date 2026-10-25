@@ -1,0 +1,18 @@
+{
+  "format": "11analyst.hero-manifest",
+  "version": 1,
+  "player_id": "1909208",
+  "matches": [
+    {
+      "file": "..\\hero-imports\\example-match.json",
+      "provider_match_id": "00000000-0000-4000-8000-000000000001",
+      "source_url": "https://11hero.com/matches/00000000-0000-4000-8000-000000000001",
+      "retrieved_at": null,
+      "participant_ids": null,
+      "discovery_name": null,
+      "metadata": {
+        "notes": "Replace the example file and UUID with the actual export and source match. Metadata is a declaration, not verified shot evidence."
+      }
+    }
+  ]
+}

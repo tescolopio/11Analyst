@@ -437,8 +437,8 @@ def html_table(headers: list[str], rows: list[list[Any]]) -> str:
     )
 
 
-def render_html(profile: dict[str, Any]) -> str:
-    return dashboard.render(profile)
+def render_html(profile: dict[str, Any], hero_evidence: dict[str, Any] | None = None) -> str:
+    return dashboard.render(profile, hero_evidence=hero_evidence)
 
 
 def atomic_text(path: Path, text: str) -> None:
@@ -456,7 +456,8 @@ def atomic_text(path: Path, text: str) -> None:
 def persist(output: Path, profile: dict[str, Any], snapshots: list[Snapshot]) -> None:
     output.mkdir(parents=True, exist_ok=True)
     payload = json.dumps(profile, indent=2, ensure_ascii=True, allow_nan=False)
-    report = render_html(profile)
+    import hero_import
+    report = render_html(profile, hero_evidence=hero_import.load_evidence(output, profile["player"]["id"]))
     connection = sqlite3.connect(output / "analyst.sqlite3")
     try:
         with connection:

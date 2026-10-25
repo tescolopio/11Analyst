@@ -11,6 +11,7 @@ from typing import Any
 
 import loss_analysis
 import practice
+import hero_import
 
 
 ASSETS = Path(__file__).with_name("dashboard")
@@ -134,8 +135,13 @@ def build_data(profile: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def render(profile: dict[str, Any], publishing_service: dict[str, Any] | None = None) -> str:
+def render(profile: dict[str, Any], publishing_service: dict[str, Any] | None = None,
+           hero_evidence: dict[str, Any] | None = None) -> str:
     data = build_data(profile)
+    evidence = hero_evidence if hero_evidence is not None else hero_import.empty_evidence(profile["player"]["id"])
+    if evidence.get("player_id") != profile["player"]["id"]:
+        raise ValueError("Hero evidence belongs to another player")
+    data["hero_evidence"] = evidence
     if publishing_service is not None:
         data["publishing"]["service"] = publishing_service
     payload = json.dumps(data, ensure_ascii=True, separators=(",", ":"), allow_nan=False)
@@ -160,8 +166,10 @@ def render(profile: dict[str, Any], publishing_service: dict[str, Any] | None = 
         "SPIN_SCRIPT": (ASSETS / "spin.js").read_text(encoding="utf-8"),
         "PILOT_SCRIPT": (ASSETS / "pilot.js").read_text(encoding="utf-8"),
         "CATALOGUE_SCRIPT": (ASSETS / "catalogue.js").read_text(encoding="utf-8"),
+        "HERO_SCRIPT": (ASSETS / "hero.js").read_text(encoding="utf-8"),
+        "HERO_REVIEW_SCRIPT": (ASSETS / "hero_review.js").read_text(encoding="utf-8"),
     }
     template = (ASSETS / "template.html").read_text(encoding="utf-8")
     if publishing_service is not None:
         template = template.replace("connect-src 'none'", "connect-src 'self'")
-    return re.sub(r"@@(DATA|FALLBACK|STYLE|SCRIPT|PUBLISHING_SCRIPT|GRAPHICS_SCRIPT|SPIN_SCRIPT|PILOT_SCRIPT|CATALOGUE_SCRIPT)@@", lambda match: replacements[match[1]], template)
+    return re.sub(r"@@(DATA|FALLBACK|STYLE|SCRIPT|PUBLISHING_SCRIPT|GRAPHICS_SCRIPT|SPIN_SCRIPT|PILOT_SCRIPT|CATALOGUE_SCRIPT|HERO_SCRIPT|HERO_REVIEW_SCRIPT)@@", lambda match: replacements[match[1]], template)

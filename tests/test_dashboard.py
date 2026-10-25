@@ -61,6 +61,14 @@ class DashboardTests(unittest.TestCase):
         data = dashboard.build_data(profile)
         self.assertEqual(data["views"]["all"]["serve_reception_pilot"]["receiving_attempts"], 0)
 
+    def test_hero_review_is_inline_and_keeps_real_validation_pending(self):
+        html = analyst.render_html(self.make_profile())
+        for element in ("hero-review-shot", "hero-review-form", "hero-review-synthetic"):
+            self.assertIn(f'id="{element}"', html)
+        self.assertNotIn("@@HERO_REVIEW_SCRIPT@@", html)
+        self.assertLess(html.index("root.ElevenHeroReview="), html.index("root.ElevenHero="))
+        self.assertIn("Real placement, length and spin validation: pending.", html)
+
     def test_catalogue_is_embedded_once_with_no_named_shot_diagnoses(self):
         profile = self.make_profile()
         before = deepcopy(profile)
