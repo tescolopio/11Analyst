@@ -136,6 +136,94 @@ GUIDANCE = {
         "unknown": ["Confirm the receiving location before choosing a placement-specific adjustment."],
     },
 }
+PADDLE_TECHNIQUE = {
+    "spin": {
+        "top": {
+            "face_angle": "closed",
+            "description": "Tilt paddle forward/down to counter upward kick",
+            "error_if_wrong": "Ball flies long if paddle too open",
+        },
+        "back": {
+            "face_angle": "open",
+            "description": "Tilt paddle back/up to lift the ball over the net",
+            "error_if_wrong": "Ball drops into net if paddle too closed",
+        },
+        "side": {
+            "face_angle": "angled_into_spin",
+            "description": "Angle paddle face against the sidespin direction",
+            "error_if_wrong": "Ball drifts sideways off intended target",
+        },
+        "side_top": {
+            "face_angle": "closed_plus_sideways",
+            "description": "Close face for topspin, angle into sidespin direction",
+            "error_if_wrong": "Ball goes long and/or drifts sideways",
+        },
+        "side_back": {
+            "face_angle": "open_plus_sideways",
+            "description": "Open face for backspin, angle into sidespin direction",
+            "error_if_wrong": "Ball drops into net and/or drifts sideways",
+        },
+        "none": {
+            "face_angle": "neutral",
+            "description": "Neutral paddle angle; do not add spin compensation",
+            "error_if_wrong": "Adding unnecessary compensation causes errors",
+        },
+        "axial": {
+            "face_angle": "observe_first",
+            "description": "Observe bounce behavior before choosing angle",
+            "error_if_wrong": "No standard prescription for axial spin",
+        },
+        "unknown": {
+            "face_angle": "identify_first",
+            "description": "Identify the spin type before applying correction",
+            "error_if_wrong": "Wrong compensation for unidentified spin",
+        },
+    },
+    "direction": {
+        "clockwise": {
+            "aim_adjustment": "right",
+            "description": "Ball curves left to receiver; aim right to compensate",
+        },
+        "counterclockwise": {
+            "aim_adjustment": "left",
+            "description": "Ball curves right to receiver; aim left to compensate",
+        },
+        "unspecified": {
+            "aim_adjustment": "observe",
+            "description": "Watch ball curve direction and adjust aim accordingly",
+        },
+        "not_applicable": {
+            "aim_adjustment": "none",
+            "description": "No sidespin direction to compensate for",
+        },
+    },
+    "length": {
+        "short": {
+            "positioning": "move_in",
+            "stroke_options": ["touch", "flick", "push"],
+        },
+        "half_long": {
+            "positioning": "read_length",
+            "stroke_options": ["touch", "flick", "drive"],
+        },
+        "long": {
+            "positioning": "create_space",
+            "stroke_options": ["drive", "loop", "counter"],
+        },
+        "mid_depth": {
+            "positioning": "balanced_ready",
+            "stroke_options": ["drive", "counter"],
+        },
+        "deep": {
+            "positioning": "step_back",
+            "stroke_options": ["compact_drive", "block"],
+        },
+        "unknown": {
+            "positioning": "ready_position",
+            "stroke_options": ["read_first"],
+        },
+    },
+}
 GATES = [
     "Convert log axes and angular-velocity units into the receiver frame and validate signs at an agreed measurement event.",
     "Establish receiver orientation, handedness/reference position and receiving-bounce attribution before naming placement.",
@@ -166,6 +254,9 @@ def selected_values(facets):
 def describe(facets):
     selected = selected_values(facets)
     name = " ".join(NAME_TEMPLATE.format(**{key: value["name"] for key, value in selected.items()}).split())
+    spin_tech = PADDLE_TECHNIQUE["spin"].get(facets["spin"], {})
+    dir_tech = PADDLE_TECHNIQUE["direction"].get(facets["direction"], {})
+    len_tech = PADDLE_TECHNIQUE["length"].get(facets["length"], {})
     return {
         "id": "--".join(facets[key] for key in FACETS),
         "name": name[0].upper() + name[1:],
@@ -175,6 +266,15 @@ def describe(facets):
         "machine_key_eligible": False,
         "recognition": [selected[key]["definition"] for key in FACETS],
         "counter_play": [line for key in GUIDANCE for line in GUIDANCE[key][facets[key]]],
+        "paddle_technique": {
+            "face_angle": spin_tech.get("face_angle"),
+            "face_description": spin_tech.get("description"),
+            "error_if_wrong": spin_tech.get("error_if_wrong"),
+            "aim_adjustment": dir_tech.get("aim_adjustment"),
+            "aim_description": dir_tech.get("description"),
+            "positioning": len_tech.get("positioning"),
+            "stroke_options": len_tech.get("stroke_options"),
+        },
         "success_criteria": [
             "On a valid incoming feed, your return clears the net and lands legally on the opponent's half.",
             "Choose a generous target before practice; record legal returns and target hits separately.",
